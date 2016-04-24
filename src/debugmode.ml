@@ -10,15 +10,11 @@ module Cmd = struct
 
   let compare = compare
 
-  let count = ref 0                     (* TODO: count for each query *)
-
-  let new_count () = count := !count + 1; !count
-
-  let make_from_str s =
+  let make_from_str i s =
     if Str.string_match (Str.regexp "\\[\\([a-zA-Z]+\\)\\]") s 0 then
-      CStr (Str.matched_group 1 s)
+      (i, CStr (Str.matched_group 1 s))
     else
-      CNum (new_count ())
+      (i + 1, CNum i)
 
   let make_from_cmd s =
     if s = "^" then CUp else
@@ -49,6 +45,7 @@ module Query = struct
   type t =
     { content : string
     ; childs : child_t Childs.t
+    ; i : int
     }
 
   and child_t =
@@ -56,11 +53,15 @@ module Query = struct
     ; f : string list -> t
     }
 
-  let create c = {content = c; childs = Childs.empty}
+  let create c = {content = c; childs = Childs.empty; i = 0}
 
   let add_child n f q =
     let c = {name = n; f = f} in
-    {q with childs = Childs.add (Cmd.make_from_str n) c q.childs}
+    let (i', cmd) = Cmd.make_from_str q.i n in
+    { q with
+      childs = Childs.add cmd c q.childs
+    ; i = i'
+    }
 
   let find_child cmd cs =
     match Childs.find cmd cs with
