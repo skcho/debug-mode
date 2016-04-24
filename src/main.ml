@@ -53,7 +53,7 @@ let rec gen_query e =
     |> DM.add_child "[a]rg" (fun _ -> gen_query e1)
   | Binop (b, e1, e2) ->
     DM.create (string_of_binop b)
-    |> DM.add_child "left_arg" (fun _ -> gen_query e1)
-    |> DM.add_child "right_arg" (fun _ -> gen_query e2)
+    |> DM.add_child "left arg" (fun _ -> gen_query e1)
+    |> DM.add_child "right arg" (fun _ -> gen_query e2)
 
 let _ = DM.run (gen_query quadratic_formula)

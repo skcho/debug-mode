@@ -18,7 +18,7 @@ module Cmd = struct
 
   let make_from_cmd s =
     if s = "^" then CUp else
-    if s = "x" || s = "X" then CExit else
+    if s = "^^" then CExit else
       match int_of_string s with
       | n -> CNum n
       | exception _ -> CStr s
@@ -32,7 +32,7 @@ module Cmd = struct
     | CNum i -> string_of_int i
     | CStr s -> s
     | CUp -> "^"
-    | CExit -> "x"
+    | CExit -> "^^"
 
   let prerr x = prerr_string (string_of x)
 
@@ -71,6 +71,7 @@ module Query = struct
   let prerr_content q = prerr_string q.content
 
   let prerr_child k child_q =
+    prerr_string "  ";
     Cmd.prerr k;
     prerr_string " : ";
     prerr_endline child_q.name
@@ -104,8 +105,6 @@ end
 
 module Run = struct
 
-  let prerr_invalid_input () = prerr_endline "Invalid input"
-
   let rec process s q =
     State.prerr_endline s q;
     Query.prerr_childs q.Query.childs;
@@ -115,28 +114,21 @@ module Run = struct
     prerr_string "$ ";
     flush stderr;
     match read_line () |> Cmd.get_cmd_args with
-    | Some (cmd, args) ->
-      ( match cmd with
-        | Cmd.CNum _
-        | Cmd.CStr _ ->
-          ( match Query.find_child cmd qs with
-            | Some c ->
-              let child_q = c.Query.f args in
-              process s child_q
-            | None ->
-              ( prerr_invalid_input ()
-              ; process_cmd s qs )
-          )
-        | Cmd.CUp ->
-          ( match s with
-            | _ :: q :: tl -> process tl q
-            | _ -> ()
-          )
-        | Cmd.CExit -> ()
+    | Some (Cmd.CNum _ as cmd, args)
+    | Some (Cmd.CStr _ as cmd, args) ->
+      ( match Query.find_child cmd qs with
+        | Some c -> process s (c.Query.f args)
+        | None ->
+          ( prerr_endline "ERROR: Invalid command";
+            process_cmd s qs )
       )
-    | None ->
-      ( prerr_invalid_input ()
-      ; process_cmd s qs )
+    | Some (Cmd.CUp, _) ->
+      ( match s with
+        | _ :: q :: tl -> process tl q
+        | _ -> ()
+      )
+    | Some (Cmd.CExit, _) -> ()
+    | None -> process_cmd s qs
 
   let run q =
     prerr_endline "Start debug mode.";
