@@ -42,23 +42,18 @@ let quadratic_formula =
         , Binop (Mul, Num 2, Var "a")
         )
 
+module DM = Debugmode
+
 let rec gen_query e =
   match e with
-  | Num i -> Query.create (string_of_int i)
-  | Var x -> Query.create x
+  | Num i -> DM.create (string_of_int i)
+  | Var x -> DM.create x
   | Unop (u, e1) ->
-    let c1 = Query.create_child "[a]rg" (fun _ -> gen_query e1) in
-    Query.create (string_of_unop u)
-    |> Query.add_child c1
+    DM.create (string_of_unop u)
+    |> DM.add_child "[a]rg" (fun _ -> gen_query e1)
   | Binop (b, e1, e2) ->
-    let c1 = Query.create_child "left_arg" (fun _ -> gen_query e1) in
-    let c2 = Query.create_child "right_arg" (fun _ -> gen_query e2) in
-    Query.create (string_of_binop b)
-    |> Query.add_child c1
-    |> Query.add_child c2
+    DM.create (string_of_binop b)
+    |> DM.add_child "left_arg" (fun _ -> gen_query e1)
+    |> DM.add_child "right_arg" (fun _ -> gen_query e2)
 
-let main () =
-  let q = gen_query quadratic_formula in
-  Query.run q
-
-let _ = main ()
+let _ = DM.run (gen_query quadratic_formula)
