@@ -11,10 +11,9 @@ module Cmd = struct
   let compare = compare
 
   let make_from_str i s =
-    if Str.string_match (Str.regexp "\\[\\([a-zA-Z]+\\)\\]") s 0 then
-      (i, CStr (Str.matched_group 1 s))
-    else
-      (i + 1, CNum i)
+    match Str.search_forward (Str.regexp "\\[\\([a-zA-Z]+\\)\\]") s 0 with
+    | _ -> (i, CStr (Str.matched_group 1 s))
+    | exception _ -> (i + 1, CNum i)
 
   let make_from_cmd s =
     if s = "^" then CUp else
@@ -40,35 +39,33 @@ end
 
 module Query = struct
 
-  module Childs = Map.Make (Cmd)
+  module Children = Map.Make (Cmd)
 
   type t =
-    { content : string
-    ; childs : child_t Childs.t
-    ; i : int
-    }
+    | Short of string
+    | Long of (unit -> unit)
+    | Next of children_t
+
+  and children_t =
+    { children : child_t Children.t
+    ; i : int }
 
   and child_t =
     { name : string
-    ; f : string list -> t
+    ; gen_q : string list -> t
     }
 
-  let create c = {content = c; childs = Childs.empty; i = 0}
+  let empty = {children = Children.empty; i = 0}
 
-  let add_child n f q =
-    let c = {name = n; f = f} in
-    let (i', cmd) = Cmd.make_from_str q.i n in
-    { q with
-      childs = Childs.add cmd c q.childs
-    ; i = i'
-    }
+  let add_child n f cs =
+    let c = {name = n; gen_q = f} in
+    let (i', cmd) = Cmd.make_from_str cs.i n in
+    {children = Children.add cmd c cs.children; i = i'}
 
   let find_child cmd cs =
-    match Childs.find cmd cs with
+    match Children.find cmd cs.children with
     | q -> Some q
     | exception _ -> None
-
-  let prerr_content q = prerr_string q.content
 
   let prerr_child k child_q =
     prerr_string "  ";
@@ -76,59 +73,62 @@ module Query = struct
     prerr_string " : ";
     prerr_endline child_q.name
 
-  let prerr_childs cs = Childs.iter prerr_child cs
+  let prerr_children cs = Children.iter prerr_child cs
+
+  let prerr_endline = function
+    | Short s -> prerr_endline s
+    | Long l -> l ()
+    | Next cs -> prerr_children cs.children
 
 end
 
 module State = struct
 
-  type state_t = Query.t list
+  type state_t = (Query.t * string) list
 
   let empty = []
 
   let rec prerr_rev = function
     | [] -> ()
-    | q :: tl ->
-      Query.prerr_content q;
+    | (_, n) :: tl ->
       prerr_string " > ";
+      prerr_string n;
       prerr_rev tl
 
   let prerr s = prerr_rev (List.rev s)
 
-  let prerr_endline s q =
-    prerr_string "STATE : ";
+  let prerr_endline s =
+    prerr_string "STATE";
     prerr s;
-    Query.prerr_content q;
     prerr_newline ()
 
 end
 
 module Run = struct
 
-  let rec process s q =
-    State.prerr_endline s q;
-    Query.prerr_childs q.Query.childs;
-    process_cmd (q :: s) q.Query.childs
+  let prerr_invalid_cmd () = prerr_endline "ERROR: Invalid command"
 
-  and process_cmd s qs =
+  let rec process s q =
+    State.prerr_endline s;
+    Query.prerr_endline q;
+    process_cmd s q
+
+  and process_cmd s q =
     prerr_string "$ ";
     flush stderr;
-    match read_line () |> Cmd.get_cmd_args with
-    | Some (Cmd.CNum _ as cmd, args)
-    | Some (Cmd.CStr _ as cmd, args) ->
+    match q, read_line () |> Cmd.get_cmd_args with
+    | Query.Next qs, Some (Cmd.CNum _ as cmd, args)
+    | Query.Next qs, Some (Cmd.CStr _ as cmd, args) ->
       ( match Query.find_child cmd qs with
-        | Some c -> process s (c.Query.f args)
-        | None ->
-          ( prerr_endline "ERROR: Invalid command";
-            process_cmd s qs )
-      )
-    | Some (Cmd.CUp, _) ->
+        | Some c -> process ((q, c.Query.name) :: s) (c.Query.gen_q args)
+        | None -> (prerr_invalid_cmd (); process_cmd s q) )
+    | _, Some (Cmd.CUp, _) ->
       ( match s with
-        | _ :: q :: tl -> process tl q
-        | _ -> ()
-      )
-    | Some (Cmd.CExit, _) -> ()
-    | None -> process_cmd s qs
+        | (q, _) :: tl -> process tl q
+        | _ -> () )
+    | _, Some (Cmd.CExit, _) -> ()
+    | _, None -> process_cmd s q
+    | _, _ -> (prerr_invalid_cmd (); process_cmd s q)
 
   let run q =
     prerr_endline "Start debug mode.";
@@ -137,8 +137,16 @@ module Run = struct
 
 end
 
-let create = Query.create
+type t = Query.t
+
+let short s = Query.Short s
+
+let long l = Query.Long l
+
+let empty = Query.empty
 
 let add_child = Query.add_child
+
+let complete cs = Query.Next cs
 
 let run = Run.run

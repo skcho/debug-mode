@@ -46,14 +46,20 @@ module DM = Debugmode
 
 let rec gen_query e =
   match e with
-  | Num i -> DM.create (string_of_int i)
-  | Var x -> DM.create x
+  | Num i -> DM.short (string_of_int i)
+  | Var x -> DM.long (fun _ -> prerr_endline "very long result start"
+                             ; prerr_endline x
+                             ; prerr_endline x
+                             ; prerr_endline "very long result end")
   | Unop (u, e1) ->
-    DM.create (string_of_unop u)
-    |> DM.add_child "[a]rg" (fun _ -> gen_query e1)
+    DM.empty
+    |> DM.add_child (string_of_unop u ^ " [a]rg") (fun _ -> gen_query e1)
+    |> DM.complete
   | Binop (b, e1, e2) ->
-    DM.create (string_of_binop b)
-    |> DM.add_child "left arg" (fun _ -> gen_query e1)
-    |> DM.add_child "right arg" (fun _ -> gen_query e2)
+    let str_b = string_of_binop b in
+    DM.empty
+    |> DM.add_child (str_b ^ " [l]eft") (fun _ -> gen_query e1)
+    |> DM.add_child (str_b ^ " [r]ight") (fun _ -> gen_query e2)
+    |> DM.complete
 
 let _ = DM.run (gen_query quadratic_formula)
