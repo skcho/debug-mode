@@ -5,8 +5,7 @@ module Cmd = struct
   type t =
     | CNum of int
     | CStr of string
-    | CUp
-    | CExit
+    | CUp of int
 
   let compare = compare
 
@@ -16,8 +15,9 @@ module Cmd = struct
     | exception _ -> (i + 1, CNum i)
 
   let make_from_cmd s =
-    if s = "^" then CUp else
-    if s = "^^" then CExit else
+    if Str.string_match (Str.regexp "^\\^+$") s 0 then
+      CUp (String.length s)
+    else
       match int_of_string s with
       | n -> CNum n
       | exception _ -> CStr s
@@ -30,8 +30,7 @@ module Cmd = struct
   let string_of = function
     | CNum i -> string_of_int i
     | CStr s -> s
-    | CUp -> "^"
-    | CExit -> "^^"
+    | CUp n -> String.make n '^'
 
   let prerr x = prerr_string (string_of x)
 
@@ -120,13 +119,15 @@ module Run = struct
       ( match Query.find_child cmd qs with
         | Some c -> process ((q, c.Query.name) :: s) (c.Query.gen_q args)
         | None -> (prerr_invalid_cmd (); process_cmd s q) )
-    | _, Some (Cmd.CUp, _) ->
-      ( match s with
-        | (q, _) :: tl -> process tl q
-        | _ -> () )
-    | _, Some (Cmd.CExit, _) -> ()
+    | _, Some (Cmd.CUp n, _) -> process_up n s
     | _, None -> process_cmd s q
     | _, _ -> (prerr_invalid_cmd (); process_cmd s q)
+
+  and process_up n s =
+    match s with
+    | (q, _) :: tl when n <= 1 -> process tl q
+    | _ :: tl -> process_up (n - 1) tl
+    | _ -> ()
 
   let run q =
     prerr_endline "Start debug mode.";
