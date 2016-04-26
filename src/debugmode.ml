@@ -74,7 +74,10 @@ module Query = struct
   let prerr_children cs = Children.iter prerr_child cs
 
   let prerr_endline = function
-    | Contents c -> c ()
+    | Contents c ->
+      ( match Printexc.print c () with
+        | () -> ()
+        | exception _ -> () )
     | Next cs -> prerr_children cs.children
 
 end
@@ -117,7 +120,7 @@ module Run = struct
     | Query.Next qs, Some (Cmd.CNum _ as cmd, args)
     | Query.Next qs, Some (Cmd.CStr _ as cmd, args) ->
       ( match Query.find_child cmd qs with
-        | Some c -> process ((q, c.Query.name) :: s) (c.Query.gen_q args)
+        | Some c -> run_child s q c args
         | None -> (prerr_invalid_cmd (); process_cmd s q) )
     | _, Some (Cmd.CUp n, _) -> process_up n s
     | _, None -> process_cmd s q
@@ -128,6 +131,11 @@ module Run = struct
     | (q, _) :: tl when n <= 1 -> process tl q
     | _ :: tl -> process_up (n - 1) tl
     | _ -> ()
+
+  and run_child s q c args =
+    match Printexc.print c.Query.gen_q args with
+    | q' -> process ((q, c.Query.name) :: s) q'
+    | exception _ -> process_cmd s q
 
   let run q =
     prerr_endline "Start debug mode.";
