@@ -42,8 +42,7 @@ module Query = struct
   module Children = Map.Make (Cmd)
 
   type t =
-    | Short of string
-    | Long of (unit -> unit)
+    | Contents of (unit -> unit)
     | Next of children_t
 
   and children_t =
@@ -76,8 +75,7 @@ module Query = struct
   let prerr_children cs = Children.iter prerr_child cs
 
   let prerr_endline = function
-    | Short s -> prerr_endline s
-    | Long l -> l ()
+    | Contents c -> c ()
     | Next cs -> prerr_children cs.children
 
 end
@@ -139,9 +137,11 @@ end
 
 type t = Query.t
 
-let short s = Query.Short s
+let short s =
+  let f () = prerr_endline s in
+  Query.Contents f
 
-let long l = Query.Long l
+let long l = Query.Contents l
 
 let empty = Query.empty
 
