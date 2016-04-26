@@ -41,8 +41,8 @@ module Query = struct
   module Children = Map.Make (Cmd)
 
   type t =
-    | Contents of (unit -> unit)
-    | Next of children_t
+    | Leaf of (unit -> unit)
+    | Node of children_t
 
   and children_t =
     { children : child_t Children.t
@@ -55,7 +55,7 @@ module Query = struct
 
   let empty = {children = Children.empty; i = 0}
 
-  let add_child n f cs =
+  let add n f cs =
     let c = {name = n; gen_q = f} in
     let (i', cmd) = Cmd.make_from_str cs.i n in
     {children = Children.add cmd c cs.children; i = i'}
@@ -74,11 +74,11 @@ module Query = struct
   let prerr_children cs = Children.iter prerr_child cs
 
   let prerr_endline = function
-    | Contents c ->
+    | Leaf c ->
       ( match Printexc.print c () with
         | () -> ()
         | exception _ -> () )
-    | Next cs -> prerr_children cs.children
+    | Node cs -> prerr_children cs.children
 
 end
 
@@ -117,8 +117,8 @@ module Run = struct
     prerr_string "$ ";
     flush stderr;
     match q, read_line () |> Cmd.get_cmd_args with
-    | Query.Next qs, Some (Cmd.CNum _ as cmd, args)
-    | Query.Next qs, Some (Cmd.CStr _ as cmd, args) ->
+    | Query.Node qs, Some (Cmd.CNum _ as cmd, args)
+    | Query.Node qs, Some (Cmd.CStr _ as cmd, args) ->
       ( match Query.find_child cmd qs with
         | Some c -> run_child s q c args
         | None -> (prerr_invalid_cmd (); process_cmd s q) )
@@ -146,16 +146,16 @@ end
 
 type t = Query.t
 
-let short s =
-  let f () = prerr_endline s in
-  Query.Contents f
+let short s = Query.Leaf (fun () -> prerr_endline s)
 
-let long l = Query.Contents l
+let long l = Query.Leaf l
+
+type children_t = Query.children_t
 
 let empty = Query.empty
 
-let add_child = Query.add_child
+let add = Query.add
 
-let complete cs = Query.Next cs
+let node cs = Query.Node cs
 
 let run = Run.run

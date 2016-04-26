@@ -53,13 +53,13 @@ let rec gen_query e =
                              ; prerr_endline "very long result end")
   | Unop (u, e1) ->
     DM.empty
-    |> DM.add_child (string_of_unop u ^ " [a]rg") (fun _ -> gen_query e1)
-    |> DM.complete
+    |> DM.add (string_of_unop u ^ " [a]rg") (fun _ -> gen_query e1)
+    |> DM.node
   | Binop (b, e1, e2) ->
     let str_b = string_of_binop b in
     DM.empty
-    |> DM.add_child (str_b ^ " [l]eft") (fun _ -> gen_query e1)
-    |> DM.add_child (str_b ^ " [r]ight") (fun _ -> gen_query e2)
-    |> DM.complete
+    |> DM.add (str_b ^ " [l]eft") (fun _ -> gen_query e1)
+    |> DM.add (str_b ^ " [r]ight") (fun _ -> gen_query e2)
+    |> DM.node
 
 let _ = DM.run (gen_query quadratic_formula)
