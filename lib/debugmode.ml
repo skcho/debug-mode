@@ -1,4 +1,4 @@
-(** Debugmode *)
+(* Debugmode *)
 
 module Cmd = struct
 
