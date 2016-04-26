@@ -82,25 +82,24 @@ module Query = struct
 
 end
 
-module State = struct
+module Stack = struct
 
-  type state_t = (Query.t * string) list
+  type stack_t = (Query.t * string) list
 
   let empty = []
 
-  let rec prerr_rev = function
+  let rec prerr = function
     | [] -> ()
     | (_, n) :: tl ->
+      prerr tl;
       prerr_string " > ";
-      prerr_string n;
-      prerr_rev tl
-
-  let prerr s = prerr_rev (List.rev s)
+      prerr_string n
 
   let prerr_endline s =
-    prerr_string "STATE";
-    prerr s;
-    prerr_newline ()
+    if List.length s = 0 then prerr_endline "STACK empty" else
+      ( prerr_string "STACK";
+        prerr s;
+        prerr_newline () )
 
 end
 
@@ -109,7 +108,7 @@ module Run = struct
   let prerr_invalid_cmd () = prerr_endline "ERROR: Invalid command"
 
   let rec process s q =
-    State.prerr_endline s;
+    Stack.prerr_endline s;
     Query.prerr_endline q;
     process_cmd s q
 
@@ -138,8 +137,9 @@ module Run = struct
     | exception _ -> process_cmd s q
 
   let run q =
-    prerr_endline "Start debug mode.";
-    process State.empty q;
+    prerr_endline "Hello debug mode.";
+    prerr_endline "  ^ : Pop the STACK (or exit when empty)";
+    process Stack.empty q;
     prerr_endline "Bye debug mode!"
 
 end
