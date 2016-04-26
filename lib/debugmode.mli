@@ -1,27 +1,27 @@
-(** Helps in making an interactive simple debug mode. *)
+(** Interactive CLI debug mode. *)
 
 (** The type of a query.
 
-    The query is simply regarded as a {i lazy} tree constructed by the
+    The query is simply regarded as a {e lazy} tree constructed by the
     two types of query.
 
-    - Leaf query: it contains a string message to print.
+    - {b Leaf query} contains a string message to print.
 
-    - Node query: it contains a set of query candidates(= children) to
+    - {b Node query} contains a set of query candidates(= children) to
       traverse next time.
 
-    {i Laziness}: since each candidate has a function to generate the
+    {e Laziness}: since each candidate has a function to generate the
     next query to run, rather than an actual query, the query tree is
     constructed on demand during the debug mode.
 *)
 type t
 
-(** Starts the debug mode. *)
+(** Start the debug mode. *)
 val run : t -> unit
 
 (** {2 Leaf query} *)
 
-(** Returns a leaf query with a short message. *)
+(** Return a leaf query with a short message. *)
 val short : string -> t
 
 (** [long f] returns a leaf query to print a long message.  When
@@ -34,7 +34,7 @@ val long : (unit -> unit) -> t
 (** The type of a set of child queries. *)
 type children_t
 
-(** Returns an empty set of child queries. *)
+(** Return an empty set of child queries. *)
 val empty : children_t
 
 (** [add name gen children] adds a child query to the [children]
@@ -57,5 +57,5 @@ val empty : children_t
 *)
 val add : string -> (string list -> t) -> children_t -> children_t
 
-(** Returns a node query. *)
+(** Return a node query. *)
 val node : children_t -> t
