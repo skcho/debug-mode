@@ -9,23 +9,13 @@ module Cmd = struct
 
   let compare = compare
 
-  let make_from_str i s =
-    match Str.search_forward (Str.regexp "\\[\\([a-zA-Z]+\\)\\]") s 0 with
-    | _ -> (i, CStr (Str.matched_group 1 s))
-    | exception _ -> (i + 1, CNum i)
-
-  let make_from_cmd s =
+  let of_string s =
     if Str.string_match (Str.regexp "^\\^+$") s 0 then
       CUp (String.length s)
     else
       match int_of_string s with
       | n -> CNum n
       | exception _ -> CStr s
-
-  let get_cmd_args s =
-    match Str.split (Str.regexp "[ \t]+") s with
-    | [] -> None
-    | c :: args -> Some (make_from_cmd c, args)
 
   let string_of = function
     | CNum i -> string_of_int i
@@ -50,15 +40,25 @@ module Query = struct
 
   and child_t =
     { name : string
-    ; gen_q : string list -> t
-    }
+    ; gen_q : string list -> t }
 
   let empty = {children = Children.empty; i = 0}
 
+  let find_shortcut s =
+    match Str.search_forward (Str.regexp "\\[\\([a-zA-Z]+\\)\\]") s 0 with
+    | _ ->
+      let scut = Str.matched_group 1 s in
+      let s' = Str.replace_first (Str.regexp "\\(\\[[a-zA-Z]+\\]\\)") scut s in
+      Some (scut, s')
+    | exception _ -> None
+
   let add n f cs =
-    let c = {name = n; gen_q = f} in
-    let (i', cmd) = Cmd.make_from_str cs.i n in
-    {children = Children.add cmd c cs.children; i = i'}
+    let (cmd, n', i') =
+      match find_shortcut n with
+      | Some (scut, n') -> (Cmd.CStr scut, n', cs.i)
+      | None -> (Cmd.CNum cs.i, n, cs.i + 1) in
+    { children = Children.add cmd {name = n'; gen_q = f} cs.children
+    ; i = i' }
 
   let find_child cmd cs =
     match Children.find cmd cs.children with
@@ -107,6 +107,11 @@ module Run = struct
 
   let prerr_invalid_cmd () = prerr_endline "ERROR: Invalid command"
 
+  let get_cmd_args s =
+    match Str.split (Str.regexp "[ \t]+") s with
+    | [] -> None
+    | c :: args -> Some (Cmd.of_string c, args)
+
   let rec process s q =
     prerr_newline ();
     Stack.prerr_endline s;
@@ -117,7 +122,7 @@ module Run = struct
   and process_cmd s q =
     prerr_string "$ ";
     flush stderr;
-    match q, read_line () |> Cmd.get_cmd_args with
+    match q, read_line () |> get_cmd_args with
     | Query.Node qs, Some (Cmd.CNum _ as cmd, args)
     | Query.Node qs, Some (Cmd.CStr _ as cmd, args) ->
       ( match Query.find_child cmd qs with
