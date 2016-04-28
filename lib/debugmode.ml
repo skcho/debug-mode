@@ -108,8 +108,10 @@ module Run = struct
   let prerr_invalid_cmd () = prerr_endline "ERROR: Invalid command"
 
   let rec process s q =
+    prerr_newline ();
     Stack.prerr_endline s;
     Query.prerr_endline q;
+    prerr_newline ();
     process_cmd s q
 
   and process_cmd s q =
@@ -138,7 +140,7 @@ module Run = struct
 
   let run q =
     prerr_endline "Hello debug mode.";
-    prerr_endline "  ^ : Pop the STACK (or exit when empty)";
+    prerr_endline "Try '^' to pop the STACK.";
     process Stack.empty q;
     prerr_endline "Bye debug mode!"
 

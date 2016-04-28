@@ -1,4 +1,4 @@
-B _build/src
 B _build/lib
-S src
+B _build/example
 S lib
+S example
