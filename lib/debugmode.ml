@@ -28,7 +28,16 @@ end
 
 module Query = struct
 
-  module Children = Map.Make (Cmd)
+  module Children = struct
+
+    include Map.Make (Cmd)
+
+    let add e v cs =
+      if mem e cs then
+        prerr_endline ( "WARNING: duplicated " ^ Cmd.string_of e
+                        ^ " is added as a command." );
+      add e v cs
+  end
 
   type t =
     | Leaf of (unit -> unit)
