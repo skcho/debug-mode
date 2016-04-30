@@ -131,7 +131,7 @@ mode.
 
 Basically, commands are natural numbers assigned from zero
 automatically.  On the other hand, we can specify string commands
-using the parentheses, `[` and `]`, in option names, as following.
+using the parentheses, `[` and `]`, in option names, as follows.
 
 ```ocaml
 let gen_query d =
