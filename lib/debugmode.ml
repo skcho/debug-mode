@@ -54,7 +54,7 @@ module Query = struct
   let empty = {children = Children.empty; i = 0}
 
   let find_shortcut s =
-    let id = "[a-zA-Z][a-zA-Z0-9!@#\\$%&\\*()-=_\\+{}|;:,\\.<>/\\?`~]*" in
+    let id = "[a-zA-Z][a-zA-Z0-9!@#\\$%&\\*()-=_\\+{}\\\\|;:,\\.<>/\\?`~\\^]*" in
     match Str.search_forward (Str.regexp ("\\[\\(" ^ id ^ "\\)\\]")) s 0 with
     | _ ->
       let scut = Str.matched_group 1 s in
@@ -169,12 +169,12 @@ let short s = Query.Leaf (fun () -> prerr_endline s)
 
 let long l = Query.Leaf l
 
-type children_t = Query.children_t
+type options_t = Query.children_t
 
 let empty = Query.empty
 
 let add = Query.add
 
-let node cs = Query.Node cs
+let final cs = Query.Node cs
 
 let run = Run.run

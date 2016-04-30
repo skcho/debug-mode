@@ -161,7 +161,7 @@ Sometimes we may want to print a multi-lined very long data, however
 it is not a good idea to use `DM.short` for that, because it requires
 to compose a long string value, which is inefficient in many cases.
 Use `DM.long` instead, the argument of which is a function that prints
-the long data by itselt.
+the long data by itself.
 
 ```ocaml
 let print_long_msg () =
@@ -182,7 +182,7 @@ Isn't it? :P
 
 ### TIP: side effect
 
-We can use the long string query to raise some side effects such as
+We can use the long string query to raise some side effects, e.g.,
 writing some data to a file.
 
 Option query with arguments
