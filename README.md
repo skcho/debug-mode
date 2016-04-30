@@ -26,7 +26,7 @@ What is this for?
 Tutorial
 --------
 
-[TUTORIAL.md]()
+[TUTORIAL.md](TUTORIAL.md)
 
 Install
 -------
@@ -37,5 +37,5 @@ License
 -------
 
 This is free and unencumbered software released into the public
-domain.  For more information, see [http://unlicense.org/]() or
-[LICENSE]().
+domain.  For more information, see
+[http://unlicense.org/](http://unlicense.org/) or [LICENSE](LICENSE).
