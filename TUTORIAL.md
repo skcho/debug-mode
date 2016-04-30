@@ -160,8 +160,8 @@ Long string query
 Sometimes we may want to print a multi-lined very long data, however
 it is not a good idea to use `DM.short` for that, because it requires
 to compose a long string value, which is inefficient in many cases.
-Instead, use `DM.long` for that, the argument of which is a function
-that prints the long data by itselt.
+Use `DM.long` instead, the argument of which is a function that prints
+the long data by itselt.
 
 ```ocaml
 let print_long_msg () =
@@ -193,17 +193,17 @@ DM.add "[n]ame" (fun _ -> DM.short d.name)
 ```
 
 Do you remember that the second argument of `DM.add` is a function?
-Actually, the function gets some arguments from the command line as a
-string list.  For example, if an option is add by,
+Actually, the function gets a string list of additional words
+following the command.  For example, if an option is add by,
 
 ```ocaml
-DM.add "[c]md" gen
+DM.add "[n]ame" gen_query_f
 ```
 
-and some arguments are given in the debug mode,
+and some arguments are given with the `n` command as follows,
 
 ```
-$ c arg1 arg2
+$ n arg1 arg2
 ```
 
-it generates the next query by running `gen ["arg1"; "arg2"]`.
+it generates the next query by running `gen_query_f ["arg1"; "arg2"]`.
