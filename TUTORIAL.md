@@ -114,22 +114,24 @@ contains options to traverse.
   DM.add "hobby" (fun _ -> DM.short d.hobby)
   ```
 
-  adds an option with the name `"hobby"`, and if the option is selected,
-  `DM.short d.hobby` is traversed as the next query.
+  adds an option with the name `"hobby"`, and if the option is
+  selected, `DM.short d.hobby` is traversed as the next query.
 
 * `DM.final` finalizes the set of options and makes a query.
 
 To conclude, we added two options to print each fields of the record
-and `DM.run` started an interactive shell for you to select one of the
+and `DM.run` started an interactive shell for us to select one of the
 options.
 
-If we enter `^`, it pops the `STACK`, so it goes back to the previous state,
-before entering the `1` command.  One more `^` exits the debug mode.
+If we enter `^`, it pops the `STACK`, so it goes back to the previous
+state, before entering the `1` command.  One more `^` exits the debug
+mode.
 
 ### TIP: string command
 
-Basically, commands are natural numbers assigned from zero automatically.  On the other hand, you can specify string commands using the
-parentheses, `[` and `]`, in option names, as following.
+Basically, commands are natural numbers assigned from zero
+automatically.  On the other hand, we can specify string commands
+using the parentheses, `[` and `]`, in option names, as following.
 
 ```ocaml
 let gen_query d =
@@ -149,16 +151,17 @@ STACK empty
 
 The special command, `^`, can be used to pop multiple queries from the
 `STACK`.  For example, `^^` pops two times and `^^^` pops three times.
-Therefore, if you enter long enough `^`s, the debug mode exits
+Therefore, if we enter long enough `^`s, the debug mode exits
 immediately.
 
 Long string query
 -----------------
 
-Sometimes you may want to print a multi-lined very long data, however it
-is not a good idea to use `DM.short` for that, because it requires to compose a long string value, which
-is inefficient in many cases.
-Instead, use `DM.long` for that, the argument of which is a function that prints the long data by itselt.
+Sometimes we may want to print a multi-lined very long data, however
+it is not a good idea to use `DM.short` for that, because it requires
+to compose a long string value, which is inefficient in many cases.
+Instead, use `DM.long` for that, the argument of which is a function
+that prints the long data by itselt.
 
 ```ocaml
 let print_long_msg () =
@@ -179,8 +182,8 @@ Isn't it? :P
 
 ### TIP: side effect
 
-You can use the function query to raise some side
-effects such as writing a file.
+We can use the function query to raise some side effects such as
+writing a file.
 
 Option query with arguments
 ---------------------------
@@ -190,8 +193,8 @@ DM.add "[n]ame" (fun _ -> DM.short d.name)
 ```
 
 Do you remember that the second argument of `DM.add` is a function?
-Actually, the function gets some arguments from the command line as a string list.  For example, if an option is add
-by,
+Actually, the function gets some arguments from the command line as a
+string list.  For example, if an option is add by,
 
 ```ocaml
 DM.add "[c]md" gen
