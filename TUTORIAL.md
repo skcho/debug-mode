@@ -63,7 +63,7 @@ let gen_query d =
   DM.empty
   |> DM.add "name" (fun _ -> DM.short d.name)
   |> DM.add "hobby" (fun _ -> DM.short d.hobby)
-  |> DM.node
+  |> DM.final
 
 let data =
   { name = "Alice"
@@ -207,3 +207,12 @@ $ n arg1 arg2
 ```
 
 it generates the next query by running `gen_query_f ["arg1"; "arg2"]`.
+
+Others we better to know
+------------------------
+
+* The debug mode prints messages to the standard error output,
+  `stderr`.
+
+* Most words starting with alphabet can be used for the string
+  command.  Just be careful not to use `[`, `]`, and spaces in it.
