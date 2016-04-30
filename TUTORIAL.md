@@ -183,7 +183,7 @@ Isn't it? :P
 ### TIP: side effect
 
 We can use the function query to raise some side effects such as
-writing a file.
+writing some data to a file.
 
 Option query with arguments
 ---------------------------
