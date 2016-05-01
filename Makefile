@@ -15,4 +15,4 @@ doc:
 	$(OCB) api.docdir/index.html
 
 clean:
-	ocamlbuild -clean
+	$(OCB) -clean
