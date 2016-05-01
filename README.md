@@ -28,10 +28,17 @@ Tutorial
 
 [TUTORIAL.md](TUTORIAL.md)
 
-Install
+Build
 -------
 
 TODO
+
+### Example
+
+```
+$ make example
+$ ./example.native
+```
 
 License
 -------
