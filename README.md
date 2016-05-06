@@ -31,13 +31,29 @@ Tutorial
 Build
 -------
 
-TODO
+```
+$ ./configure
+$ make
+$ make install
+```
+
+### Documentation
+
+```
+$ make doc
+```
 
 ### Example
 
 ```
-$ make example
+$ make example.native
 $ ./example.native
+```
+
+### Uninstall
+
+```
+$ make uninstall
 ```
 
 License
