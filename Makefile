@@ -1,18 +1,24 @@
-OCB_FLAGS = -use-ocamlfind -I lib
-EX_FLAGS = -I example
-OCB = ocamlbuild $(OCB_FLAGS)
+.PHONY: all build doc install uninstall clean example
 
-.PHONY: all example doc clean
+all: build
 
-all:
-	$(OCB) debugmode.cma
-	$(OCB) debugmode.cmxa
+configure:
+	ocaml setup.ml -configure
 
-example:
-	$(OCB) $(EX_FLAGS) example.native
+build:
+	ocaml setup.ml -build
 
 doc:
-	$(OCB) api.docdir/index.html
+	ocaml setup.ml -doc
+
+install:
+	ocaml setup.ml -install
+
+uninstall:
+	ocaml setup.ml -uninstall
 
 clean:
-	$(OCB) -clean
+	ocaml setup.ml -clean
+
+example: example/example.ml
+	ocamlbuild -use-ocamlfind -pkg=str,debugmode example/example.native

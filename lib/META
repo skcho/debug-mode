@@ -1,0 +1,11 @@
+# OASIS_START
+# DO NOT EDIT (digest: ceb6cc859ac8c57604e7428616533de4)
+version = "0.1"
+description = "Interactive CLI debug mode."
+archive(byte) = "debugmode.cma"
+archive(byte, plugin) = "debugmode.cma"
+archive(native) = "debugmode.cmxa"
+archive(native, plugin) = "debugmode.cmxs"
+exists_if = "debugmode.cma"
+# OASIS_STOP
+
