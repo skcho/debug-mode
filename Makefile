@@ -1,15 +1,7 @@
-.PHONY: all build doc install uninstall clean example
+.PHONY: all install uninstall clean doc
 
-all: build
-
-configure:
-	ocaml setup.ml -configure
-
-build:
+all:
 	ocaml setup.ml -build
-
-doc:
-	ocaml setup.ml -doc
 
 install:
 	ocaml setup.ml -install
@@ -20,5 +12,8 @@ uninstall:
 clean:
 	ocaml setup.ml -clean
 
-example: example/example.ml
-	ocamlbuild -use-ocamlfind -pkg=str,debugmode example/example.native
+doc:
+	ocaml setup.ml -doc
+
+example.native:
+	ocamlbuild -use-ocamlfind -pkgs=debugmode,str example/example.native
