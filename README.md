@@ -3,30 +3,49 @@ debug-mode
 
 Interactive CLI debug mode library for OCaml
 
-What is this for?
------------------
+Problems
+--------
 
-* Traverse data: it helps in constructing a debugging program that
-  traverses internal data of your program, which is sometimes too big
-  to "print and grep", or too complicated to "set a breakpoint and
-  watch a low-level program state".
+* Debugging by excessive log functions: Sometimes the data to watch
+  is too big to apply *log-and-grep* approach.
 
-* Interactive debugging: when the debug mode starts, it stops the
-  world and runs a debug shell that helps you to watch only data you
-  are insterested in.  What you have to do is to define major things,
-  for example,
+* Debugging by adding small number of print functions: The adding
+  print functions is, in many cases, *not complete* because of various
+  input data and execution status.
 
-  1. what data to print,
-  2. how to print the data.
+* Debugging by using debugging tools such as
+  [ocamldebug](http://caml.inria.fr/pub/docs/manual-ocaml/debugger.html):
+  Well, it may work.  I don't know.
 
-  The other minor and annoying things, which are usually related to
-  the interaction, will be done by the library, e.g., processing
-  command strings from users.
+  One problem I can think is how to traverse OCaml's complicated, or
+  user-defined, structures such as map, set, or graph using the tools.
+  This is not an issue if a language has a huge standard library.  For
+  example, in C# or Java, debugging tools already know how to traverse
+  pre-defined structures in standard libraries and users hardly define
+  their own data structures.  However, OCaml's standard library is
+  minimal, so users use various external libraries or define their own
+  data structures, which makes it hard for debugging tools to prepare
+  some traversal functions for the complicated data
+  structures---though I like the minimal standard library policy.
 
 Tutorial
 --------
 
-[TUTORIAL.md](TUTORIAL.md)
+The debug-mode library provides,
+
+* an interactive debugging shell, in which
+* data structures are traversed through some traversal functions you
+  define.
+
+It is designed to traverse complicated data, not to replace other
+debugging tools.  It *does not* provide,
+
+* time travel, e.g., `run`, `next [count]`, and `previous [count]` in
+  [ocamldebug](http://caml.inria.fr/pub/docs/manual-ocaml/debugger.html),
+* watching call stacks
+* etc.
+
+See [TUTORIAL.md](TUTORIAL.md).
 
 Build
 -------
