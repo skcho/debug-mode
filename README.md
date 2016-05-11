@@ -37,15 +37,15 @@ The debug-mode library provides,
 * data structures are traversed through some traversal functions you
   define.
 
-It is designed to traverse complicated data, not to replace other
-debugging tools.  It *does not* provide,
+See [TUTORIAL.md](TUTORIAL.md).
+
+REMARK: It is designed to traverse complicated data, not to replace
+other debugging tools.  It *does not* provide,
 
 * time travel, e.g., `run`, `next [count]`, and `previous [count]` in
   [ocamldebug](http://caml.inria.fr/pub/docs/manual-ocaml/debugger.html),
 * watching call stacks
 * etc.
-
-See [TUTORIAL.md](TUTORIAL.md).
 
 Build
 -------
