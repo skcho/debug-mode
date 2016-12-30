@@ -1,19 +1,12 @@
-.PHONY: all install uninstall clean doc
+.PHONY: all example clean
+
+OCB=ocamlbuild -use-ocamlfind -pkg str
 
 all:
-	ocaml setup.ml -build
+	$(OCB) debugmode.cmo debugmode.cmx debugmode.cma debugmode.cmxa debugmode.docdir/index.html
 
-install:
-	ocaml setup.ml -install
-
-uninstall:
-	ocaml setup.ml -uninstall
+example:
+	$(OCB) debugmode_example.native
 
 clean:
-	ocaml setup.ml -clean
-
-doc:
-	ocaml setup.ml -doc
-
-example.native:
-	ocamlbuild -use-ocamlfind -pkgs=debugmode,str example/example.native
+	$(OCB) -clean
