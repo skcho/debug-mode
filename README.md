@@ -24,14 +24,15 @@ options you designed.
 
 *REMARK: Its only goal is to make it easy to observe intermediate
  states, so it does not support GDB-style features such as "time
- travel" and "print call stacks".*
+ travel" and "call stack print".*
 
 How to use
 ----------
 
-1. Read [TUTORIAL.md](TUTORIAL.md).
-2. Copy `debugmode.ml` and `debugmode.mli` to your source directory.
-3. Compile them together with your project.
+Simply,
+
+1. Copy `debugmode.ml` and `debugmode.mli` to your source directory.
+2. Compile them together with your OCaml code.
 
 License
 -------
